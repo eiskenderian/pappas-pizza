@@ -94,7 +94,8 @@ class Chimp(pg.sprite.Sprite):
         screen = pg.display.get_surface()
         self.area = screen.get_rect()
         self.rect.topleft = 10, 10
-        self.move = 9
+        # Speed
+        self.move = 15
         self.dizzy = 0
 
     def update(self):
@@ -140,7 +141,7 @@ def main():
     # Initialize Everything
     pg.init()
     screen = pg.display.set_mode((468, 60))
-    pg.display.set_caption("Monkey Fever")
+    pg.display.set_caption("Papas Pizza")
     pg.mouse.set_visible(0)
 
     # Create The Backgound
@@ -151,7 +152,7 @@ def main():
     # Put Text On The Background, Centered
     if pg.font:
         font = pg.font.Font(None, 36)
-        text = font.render("Pummel The Chimp, And Win $$$", 1, (10, 10, 10))
+        text = font.render("Make a pizza!", 1, (10, 10, 10))
         textpos = text.get_rect(centerx=background.get_width() / 2)
         background.blit(text, textpos)
 
