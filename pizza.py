@@ -14,6 +14,7 @@ https://github.com/takluyver/pygame/blob/master/examples/data/punch.wav
 import os
 import pygame as pg
 from pygame.compat import geterror
+import random
 
 if not pg.font:
     print("Warning, fonts disabled")
@@ -90,10 +91,12 @@ class Chimp(pg.sprite.Sprite):
 
     def __init__(self):
         pg.sprite.Sprite.__init__(self)  # call Sprite intializer
-        self.image, self.rect = load_image("chimp.bmp", -1)
+        original = load_image("Pepperoni-Pizza.png", -1)[0]
+        self.image = pg.transform.scale(original, (100, 100))
+        self.rect = self.image.get_rect()
         screen = pg.display.get_surface()
         self.area = screen.get_rect()
-        self.rect.topleft = 10, 10
+        self.rect.topleft = 10, 60
         # Speed
         self.move = 15
         self.dizzy = 0
@@ -107,13 +110,12 @@ class Chimp(pg.sprite.Sprite):
 
     def _walk(self):
         """move the monkey across the screen, and turn at the ends"""
-        newpos = self.rect.move((self.move, 0))
-        if not self.area.contains(newpos):
-            if self.rect.left < self.area.left or self.rect.right > self.area.right:
-                self.move = -self.move
-                newpos = self.rect.move((self.move, 0))
-                self.image = pg.transform.flip(self.image, 1, 0)
-            self.rect = newpos
+        newpos = self.rect.move((2 * self.move * random.random() - self.move, 2 * self.move * random.random() - self.move))
+        if self.rect.left < self.area.left or self.rect.right > self.area.right:
+            self.move = -self.move
+            newpos = self.rect.move((2 * self.move * random.random() - self.move, 2 * self.move * random.random() - self.move))
+            self.image = pg.transform.flip(self.image, 1, 0)
+        self.rect = newpos
 
     def _spin(self):
         """spin the monkey image"""
@@ -140,7 +142,7 @@ def main():
        a loop until the function returns."""
     # Initialize Everything
     pg.init()
-    screen = pg.display.set_mode((468, 60))
+    screen = pg.display.set_mode((468, 468))
     pg.display.set_caption("Papas Pizza")
     pg.mouse.set_visible(0)
 
