@@ -1,12 +1,6 @@
 #!/usr/bin/env python
-""" pygame.examples.chimp
-
-This simple example is used for the line-by-line tutorial
-that comes with pygame. It is based on a 'popular' web banner.
-Note there are comments here, but for the full explanation,
-follow along in the tutorial.
-
-https://github.com/takluyver/pygame/blob/master/examples/data/punch.wav
+"""
+Papa's Pizzeria Game
 """
 
 
@@ -63,77 +57,45 @@ class Fist(pg.sprite.Sprite):
 
     def __init__(self):
         pg.sprite.Sprite.__init__(self)  # call Sprite initializer
-        self.image, self.rect = load_image("fist.bmp", -1)
-        self.punching = 0
-
+        original = load_image("pizzeria.jpg", -1)[0]
+        self.image = pg.transform.scale(original, (468, 468))
+        self.rect = self.image.get_rect()
+        
     def update(self):
-        """move the fist based on the mouse position"""
-        pos = pg.mouse.get_pos()
-        self.rect.midtop = pos
-        if self.punching:
-            self.rect.move_ip(5, 10)
+        return
 
-    def punch(self, target):
-        """returns true if the fist collides with the target"""
-        if not self.punching:
-            self.punching = 1
-            hitbox = self.rect.inflate(-5, -5)
-            return hitbox.colliderect(target.rect)
-
-    def unpunch(self):
-        """called to pull the fist back"""
-        self.punching = 0
-
-
-class Chimp(pg.sprite.Sprite):
+class Pizza(pg.sprite.Sprite):
     """moves a monkey critter across the screen. it can spin the
        monkey when it is punched."""
 
     def __init__(self):
         pg.sprite.Sprite.__init__(self)  # call Sprite intializer
-        original = load_image("Pepperoni-Pizza.png", -1)[0]
-        self.image = pg.transform.scale(original, (100, 100))
+        original = load_image("pizza-base.png", -1)[0]
+        self.image = pg.transform.scale(original, (200, 200))
+        self.original = self.image
         self.rect = self.image.get_rect()
         screen = pg.display.get_surface()
         self.area = screen.get_rect()
-        self.rect.topleft = 10, 60
-        # Speed
-        self.move = 15
-        self.dizzy = 0
+
+        left = self.area.width / 2 - self.rect.width / 2
+        self.rect.topleft = left, 60
+
+        self.angle = 0
+        self.angleChange = 3
 
     def update(self):
-        """walk or spin, depending on the monkeys state"""
-        if self.dizzy:
-            self._spin()
-        else:
-            self._walk()
-
-    def _walk(self):
-        """move the monkey across the screen, and turn at the ends"""
-        newpos = self.rect.move((2 * self.move * random.random() - self.move, 2 * self.move * random.random() - self.move))
-        if self.rect.left < self.area.left or self.rect.right > self.area.right:
-            self.move = -self.move
-            newpos = self.rect.move((2 * self.move * random.random() - self.move, 2 * self.move * random.random() - self.move))
-            self.image = pg.transform.flip(self.image, 1, 0)
-        self.rect = newpos
-
+        """Spin no matter what"""
+        self._spin()
+    
     def _spin(self):
-        """spin the monkey image"""
+        """spin the pizza"""
+        self.angle = self.angle + self.angleChange
+        if self.angle >= 360:
+            self.angle = self.angle - 360
+        
         center = self.rect.center
-        self.dizzy = self.dizzy + 12
-        if self.dizzy >= 360:
-            self.dizzy = 0
-            self.image = self.original
-        else:
-            rotate = pg.transform.rotate
-            self.image = rotate(self.original, self.dizzy)
+        self.image = pg.transform.rotate(self.original, self.angle)
         self.rect = self.image.get_rect(center=center)
-
-    def punched(self):
-        """this will cause the monkey to start spinning"""
-        if not self.dizzy:
-            self.dizzy = 1
-            self.original = self.image
 
 
 def main():
@@ -166,9 +128,9 @@ def main():
     clock = pg.time.Clock()
     whiff_sound = load_sound("whiff.wav")
     punch_sound = load_sound("punch.wav")
-    chimp = Chimp()
+    pizza = Pizza()
     fist = Fist()
-    allsprites = pg.sprite.RenderPlain((fist, chimp))
+    allsprites = pg.sprite.RenderPlain((fist, pizza))
 
     # Main Loop
     going = True
@@ -182,9 +144,9 @@ def main():
             elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 going = False
             elif event.type == pg.MOUSEBUTTONDOWN:
-                if fist.punch(chimp):
+                if fist.punch(pizza):
                     punch_sound.play()  # punch
-                    chimp.punched()
+                    pizza.punched()
                 else:
                     whiff_sound.play()  # miss
             elif event.type == pg.MOUSEBUTTONUP:
