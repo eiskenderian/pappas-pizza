@@ -52,8 +52,8 @@ def load_sound(name):
 
 
 # classes for our game objects
-class Fist(pg.sprite.Sprite):
-    """moves a clenched fist on the screen, following the mouse"""
+class Pizzeria(pg.sprite.Sprite):
+    """displays the pizzeria background"""
 
     def __init__(self):
         pg.sprite.Sprite.__init__(self)  # call Sprite initializer
@@ -81,7 +81,7 @@ class Pizza(pg.sprite.Sprite):
         self.rect.topleft = left, 60
 
         self.angle = 0
-        self.angleChange = 3
+        self.angleChange = 2
 
     def update(self):
         """Spin no matter what"""
@@ -97,6 +97,31 @@ class Pizza(pg.sprite.Sprite):
         self.image = pg.transform.rotate(self.original, self.angle)
         self.rect = self.image.get_rect(center=center)
 
+class Arm(pg.sprite.Sprite):
+    """the arm that throws the ingredients of the pizza"""
+
+    def __init__(self):
+        pg.sprite.Sprite.__init__(self)  # call Sprite initializer
+        original = load_image("arm-throwing.png", -1)[0]
+        self.image = pg.transform.scale(original, (150, 300))
+        self.original = self.image
+        self.rect = self.image.get_rect()
+        self.angle = 0
+        self.rect.bottomleft = 0,488
+        
+    def update(self):
+        self._move()
+
+    def _move(self):
+        """spin the pizza"""
+        self.angle = self.angle + 0.1
+        if self.angle >= 40:
+            self.angle = 0
+        angle = self.angle if self.angle < 20 else 40 - self.angle
+        self.image = pg.transform.rotate(self.original, 20 - angle)
+        self.image = pg.transform.scale(self.image, (150, (int)(300 - 150 * angle /  20)))
+        self.rect = self.image.get_rect(center = self.original.get_rect(center = (0, 368)).center)
+        self.rect.bottomleft = 3*angle, 495 - angle
 
 def main():
     """this function is called when the program starts.
@@ -106,12 +131,12 @@ def main():
     pg.init()
     screen = pg.display.set_mode((468, 468))
     pg.display.set_caption("Papas Pizza")
-    pg.mouse.set_visible(0)
+    pg.mouse.set_visible(1)
 
     # Create The Backgound
     background = pg.Surface(screen.get_size())
     background = background.convert()
-    background.fill((250, 250, 250))
+    background.fill((0, 0, 0))
 
     # Put Text On The Background, Centered
     if pg.font:
@@ -129,8 +154,9 @@ def main():
     whiff_sound = load_sound("whiff.wav")
     punch_sound = load_sound("punch.wav")
     pizza = Pizza()
-    fist = Fist()
-    allsprites = pg.sprite.RenderPlain((fist, pizza))
+    pizzeria = Pizzeria()
+    arm = Arm()
+    allsprites = pg.sprite.RenderPlain((pizzeria, pizza, arm))
 
     # Main Loop
     going = True
@@ -143,14 +169,14 @@ def main():
                 going = False
             elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 going = False
-            elif event.type == pg.MOUSEBUTTONDOWN:
-                if fist.punch(pizza):
-                    punch_sound.play()  # punch
-                    pizza.punched()
-                else:
-                    whiff_sound.play()  # miss
-            elif event.type == pg.MOUSEBUTTONUP:
-                fist.unpunch()
+            # elif event.type == pg.MOUSEBUTTONDOWN:
+                # if fist.punch(pizza):
+                #     punch_sound.play()  # punch
+                #     pizza.punched()
+                # else:
+                #     whiff_sound.play()  # miss
+            # elif event.type == pg.MOUSEBUTTONUP:
+            #     fist.unpunch()
 
         allsprites.update()
 
