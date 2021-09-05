@@ -36,13 +36,16 @@ class MaterialIterator:
       return scale
 
   def reset(self):
-    self.delta = (math.pi * self.speed) / DEFAULT_INTERVALs
     self.offset = 0
   
   def __iter__(self):
     self.reset()
-    self.delta = 0.1
     return self
 
   def __next__(self):
-    return math.cos(self.offset)
+    if (self.offset > float(DEFAULT_INTERVALs / float(self.speed))):
+      raise StopIteration
+    theta = (self.offset * math.pi * self.speed) / DEFAULT_INTERVALs
+    next = 1 - math.cos(theta)
+    self.offset += 1
+    return next
