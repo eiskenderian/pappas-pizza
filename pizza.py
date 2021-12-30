@@ -8,7 +8,8 @@ Papa's Pizzeria Game
 import os
 import pygame as pg
 from pygame.compat import geterror
-import random
+
+from package import MaterialIterator
 
 if not pg.font:
     print("Warning, fonts disabled")
@@ -16,7 +17,7 @@ if not pg.mixer:
     print("Warning, sound disabled")
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
-data_dir = os.path.join(main_dir, "../data")
+data_dir = os.path.join(main_dir, "./data")
 
 
 # functions to create our resources
@@ -108,12 +109,14 @@ class Arm(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.angle = 0
         self.rect.bottomleft = 0,488
+
+        self.iterator = MaterialIterator()
         
     def update(self):
         self._move()
 
     def _move(self):
-        """spin the pizza"""
+        """Throw the ingredient"""
         self.angle = self.angle + 0.1
         if self.angle >= 40:
             self.angle = 0

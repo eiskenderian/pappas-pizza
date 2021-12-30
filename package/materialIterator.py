@@ -10,9 +10,11 @@ MAX_SPEED = 20
 DEFAULT_INTERVALs = 100
 
 class MaterialIterator:
-  def __init__(self, speed = 1, scale = 1):
+  def __init__(self, speed = 1, lower = 0, upper = 360):
     self.speed = self.sanitiseSpeed(speed)
-    self.scale = self.sanitiseScale(scale)
+    range = self.sanitiseRange(lower, upper)
+    self.lower = range[0]
+    self.upper = range[1]
     self.reset()
 
   def sanitiseSpeed(self, speed):
@@ -25,15 +27,15 @@ class MaterialIterator:
     else:
       return speed
 
-  def sanitiseScale(self, scale):
-    if (scale < 1):
-      print("Minimum scale reached: %d is smaller than %d", scale, MIN_SCALE)
-      return 1
-    elif (scale > MAX_SCALE):
-      print("Maximum scale exceeded: %d is greater than %d", scale, MIN_SCALE)
-      return MAX_SCALE
+  def sanitiseRange(self, lower, upper):
+    if (lower < 0 or upper < 1):
+      print("Minimum range reached: %d must be greater than 0 and %d must be greater than 1")
+      return (0, 360)
+    elif (lower > 359 or upper > 360):
+      print("Maximum range exceeded: %d must be smaller than 359 and %d must be smaller than 360 degrees", lower, upper)
+      return (0, 360)
     else:
-      return scale
+      return (lower, upper)
 
   def reset(self):
     self.offset = 0
@@ -45,7 +47,7 @@ class MaterialIterator:
   def __next__(self):
     if (self.offset > float(DEFAULT_INTERVALs / float(self.speed))):
       raise StopIteration
-    theta = (self.offset * math.pi * self.speed) / DEFAULT_INTERVALs
+    theta = self.lower * math.pi / 360 + (self.offset * math.pi * self.speed * (self.upper - self.lower) / 360) / DEFAULT_INTERVALs
     next = 1 - math.cos(theta)
     self.offset += 1
     return next
